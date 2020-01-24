@@ -8,7 +8,7 @@ let taskOneObj = {};
 let taskTwoObj = {};
 let taskThreeObj = {};
 
-fs.createReadStream('data/node-data-processing-medium-data.csv')
+fs.createReadStream('node-data-processing-medium-data.csv')
   .pipe((csv()))
   .on('data', (row) => {
     let region = row.Region;
@@ -221,7 +221,7 @@ fs.createReadStream('data/node-data-processing-medium-data.csv')
 
     // console.log(util.inspect(taskOneObj, {showHidden: false, depth: null}));
     let taskOneJson = JSON.stringify(taskOneObj);
-    fs.writeFile('results/task-1.json', taskOneJson, 'utf-8', function (err, data) {
+    fs.writeFile('task-1.json', taskOneJson, 'utf-8', function (err, data) {
       if (err){
         console.log(err);
       }
@@ -231,7 +231,7 @@ fs.createReadStream('data/node-data-processing-medium-data.csv')
     // Task-2
     // console.log(util.inspect(taskTwoObj, {showHidden: false, depth: null}));
     let taskTwoJson = JSON.stringify(taskTwoObj);
-    fs.writeFile('results/task-2.json', taskTwoJson, 'utf-8', function (err, data) {
+    fs.writeFile('task-2.json', taskTwoJson, 'utf-8', function (err, data) {
       if (err){
         console.log(err);
       }
@@ -253,7 +253,7 @@ fs.createReadStream('data/node-data-processing-medium-data.csv')
 
     // console.log(util.inspect(taskThreeObj, {showHidden: false, depth: null}));
     let taskThreeJson = JSON.stringify(taskThreeObj);
-    fs.writeFile('results/task-3.json', taskThreeJson, 'utf-8', function (err, data) {
+    fs.writeFile('task-3.json', taskThreeJson, 'utf-8', function (err, data) {
       if (err){
         console.log(err);
       }
