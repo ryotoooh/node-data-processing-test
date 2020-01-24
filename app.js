@@ -8,7 +8,7 @@ let taskOneObj = {};
 let taskTwoObj = {};
 let taskThreeObj = {};
 
-fs.createReadStream('node-data-processing-medium-data.csv')
+fs.createReadStream('test.csv')
   .pipe((csv()))
   .on('data', (row) => {
     let region = row.Region;
@@ -32,73 +32,56 @@ fs.createReadStream('node-data-processing-medium-data.csv')
     shipDate.setMonth(shipMonth - 1);
     shipDate.setDate(shipDay);
 
-    let daysToShip = parseInt(Math.round(shipDate.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    // Task-1
-    if (typeof taskOneObj.Regions[region] === 'undefined') {
-      taskOneObj.Regions[region] = {};
-      taskOneObj.Regions[region].Total = {};
-      taskOneObj.Regions[region].Total.Revenue = parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Total.Cost = parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Total.Profit = parseFloat(row['Total Profit']);      
-    } else {
-      taskOneObj.Regions[region].Total.Revenue += parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Total.Cost += parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Total.Profit += parseFloat(row['Total Profit']);
+    const isEmpty = function(obj) {
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key))
+          return false;
+      }
+      return true;
     }
 
-    if (typeof taskOneObj.Regions[region].Countries === 'undefined') {
-      taskOneObj.Regions[region].Countries = {};
-      taskOneObj.Regions[region].Countries[country] = {};
-      taskOneObj.Regions[region].Countries[country].Total = {};
-      taskOneObj.Regions[region].Countries[country].Total.Revenue = parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Countries[country].Total.Cost = parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Countries[country].Total.Profit = parseFloat(row['Total Profit']);
-
-      taskOneObj.Regions[region].Countries[country].ItemTypes = {};
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType] = {};
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Revenue = parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Cost = parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Profit = parseFloat(row['Total Profit']);
-    } else if (typeof taskOneObj.Regions[region].Countries[country] === 'undefined') {
-      taskOneObj.Regions[region].Countries[country] = {};
-      taskOneObj.Regions[region].Countries[country].Total = {};
-      taskOneObj.Regions[region].Countries[country].Total.Revenue = parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Countries[country].Total.Cost = parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Countries[country].Total.Profit = parseFloat(row['Total Profit']);
-
-      taskOneObj.Regions[region].Countries[country].ItemTypes = {};
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType] = {};
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Revenue = parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Cost = parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Profit = parseFloat(row['Total Profit']);
-    } else {
-      taskOneObj.Regions[region].Countries[country].Total.Revenue += parseFloat(row['Total Revenue']);
-      taskOneObj.Regions[region].Countries[country].Total.Cost += parseFloat(row['Total Cost']);
-      taskOneObj.Regions[region].Countries[country].Total.Profit += parseFloat(row['Total Profit']);
-
-      if (typeof taskOneObj.Regions[region].Countries[country].ItemTypes[itemType] === 'undefined') {
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType] = {};
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Revenue = parseFloat(row['Total Revenue']);
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Cost = parseFloat(row['Total Cost']);
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Profit = parseFloat(row['Total Profit']);
+    const addTotalValuesToTaskOneObj = function(obj) {
+      if (isEmpty(obj)) {
+        obj.Revenue = parseFloat(row['Total Revenue']);
+        obj.Cost = parseFloat(row['Total Cost']);
+        obj.Profit = parseFloat(row['Total Profit']);
       } else {
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Revenue += parseFloat(row['Total Revenue']);
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Cost += parseFloat(row['Total Cost']);
-        taskOneObj.Regions[region].Countries[country].ItemTypes[itemType].Profit += parseFloat(row['Total Profit']);
+        obj.Revenue += parseFloat(row['Total Revenue']);
+        obj.Cost += parseFloat(row['Total Cost']);
+        obj.Profit += parseFloat(row['Total Profit']);
       }
     }
 
+    let daysToShip = parseInt(Math.round(shipDate.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Task-1
+    // Create Region objects
+    if (typeof taskOneObj.Regions[region] === 'undefined') {
+      taskOneObj.Regions[region] = {};
+      taskOneObj.Regions[region].Total = {};
+      taskOneObj.Regions[region].Countries = {};
+    }
+    addTotalValuesToTaskOneObj(taskOneObj.Regions[region].Total);
+
+    // Create Regions/Country objects
+    if (typeof taskOneObj.Regions[region].Countries[country] === 'undefined') {
+      taskOneObj.Regions[region].Countries[country] = {};
+      taskOneObj.Regions[region].Countries[country].Total = {};
+      taskOneObj.Regions[region].Countries[country].ItemTypes = {};
+    }
+    addTotalValuesToTaskOneObj(taskOneObj.Regions[region].Countries[country].Total);
+
+    // Create Regions/Countries/ItemType objects
+    if (typeof taskOneObj.Regions[region].Countries[country].ItemTypes[itemType] === 'undefined') {
+      taskOneObj.Regions[region].Countries[country].ItemTypes[itemType] = {};
+    }
+    addTotalValuesToTaskOneObj(taskOneObj.Regions[region].Countries[country].ItemTypes[itemType]);
+
+    // Create ItemType objects
     if (typeof taskOneObj.ItemTypes[itemType] === 'undefined') {
       taskOneObj.ItemTypes[itemType] = {};
-      taskOneObj.ItemTypes[itemType].Revenue = parseFloat(row['Total Revenue']);
-      taskOneObj.ItemTypes[itemType].Cost = parseFloat(row['Total Cost']);
-      taskOneObj.ItemTypes[itemType].Profit = parseFloat(row['Total Profit']); 
-    } else {
-      taskOneObj.ItemTypes[itemType].Revenue += parseFloat(row['Total Revenue']);
-      taskOneObj.ItemTypes[itemType].Cost += parseFloat(row['Total Cost']);
-      taskOneObj.ItemTypes[itemType].Profit += parseFloat(row['Total Profit']);
     }
+    addTotalValuesToTaskOneObj(taskOneObj.ItemTypes[itemType]);
     
     // Task-2
     if (typeof taskTwoObj[orderYear] === 'undefined') {
